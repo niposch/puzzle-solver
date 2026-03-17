@@ -1,0 +1,106 @@
+{
+  "grid_size": 5,
+  "ball_count": 3,
+  "clues": [
+    {
+      "side": "E",
+      "index": 0,
+      "value": "R"
+    },
+    {
+      "side": "E",
+      "index": 1,
+      "value": "H"
+    },
+    {
+      "side": "E",
+      "index": 2,
+      "value": "R"
+    },
+    {
+      "side": "E",
+      "index": 3,
+      "value": "H"
+    },
+    {
+      "side": "E",
+      "index": 4,
+      "value": "R"
+    },
+    {
+      "side": "N",
+      "index": 0,
+      "value": "H"
+    },
+    {
+      "side": "N",
+      "index": 1,
+      "value": "3"
+    },
+    {
+      "side": "N",
+      "index": 2,
+      "value": "2"
+    },
+    {
+      "side": "N",
+      "index": 3,
+      "value": "3"
+    },
+    {
+      "side": "N",
+      "index": 4,
+      "value": "H"
+    },
+    {
+      "side": "S",
+      "index": 0,
+      "value": "H"
+    },
+    {
+      "side": "S",
+      "index": 1,
+      "value": "R"
+    },
+    {
+      "side": "S",
+      "index": 2,
+      "value": "2"
+    },
+    {
+      "side": "S",
+      "index": 3,
+      "value": "1"
+    },
+    {
+      "side": "S",
+      "index": 4,
+      "value": "H"
+    },
+    {
+      "side": "W",
+      "index": 0,
+      "value": "R"
+    },
+    {
+      "side": "W",
+      "index": 1,
+      "value": "H"
+    },
+    {
+      "side": "W",
+      "index": 2,
+      "value": "R"
+    },
+    {
+      "side": "W",
+      "index": 3,
+      "value": "H"
+    },
+    {
+      "side": "W",
+      "index": 4,
+      "value": "1"
+    }
+  ]
+}

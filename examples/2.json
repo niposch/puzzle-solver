@@ -1,0 +1,206 @@
+{
+  "grid_size": 10,
+  "ball_count": 5,
+  "clues": [
+    {
+      "side": "E",
+      "index": 0,
+      "value": "1"
+    },
+    {
+      "side": "E",
+      "index": 1,
+      "value": "10"
+    },
+    {
+      "side": "E",
+      "index": 2,
+      "value": "H"
+    },
+    {
+      "side": "E",
+      "index": 3,
+      "value": "9"
+    },
+    {
+      "side": "E",
+      "index": 4,
+      "value": "H"
+    },
+    {
+      "side": "E",
+      "index": 5,
+      "value": "8"
+    },
+    {
+      "side": "E",
+      "index": 6,
+      "value": "2"
+    },
+    {
+      "side": "E",
+      "index": 7,
+      "value": "H"
+    },
+    {
+      "side": "E",
+      "index": 8,
+      "value": "8"
+    },
+    {
+      "side": "E",
+      "index": 9,
+      "value": "H"
+    },
+    {
+      "side": "N",
+      "index": 0,
+      "value": "H"
+    },
+    {
+      "side": "N",
+      "index": 1,
+      "value": "10"
+    },
+    {
+      "side": "N",
+      "index": 2,
+      "value": "3"
+    },
+    {
+      "side": "N",
+      "index": 3,
+      "value": "4"
+    },
+    {
+      "side": "N",
+      "index": 4,
+      "value": "R"
+    },
+    {
+      "side": "N",
+      "index": 5,
+      "value": "H"
+    },
+    {
+      "side": "N",
+      "index": 6,
+      "value": "9"
+    },
+    {
+      "side": "N",
+      "index": 7,
+      "value": "5"
+    },
+    {
+      "side": "N",
+      "index": 8,
+      "value": "6"
+    },
+    {
+      "side": "N",
+      "index": 9,
+      "value": "7"
+    },
+    {
+      "side": "S",
+      "index": 0,
+      "value": "H"
+    },
+    {
+      "side": "S",
+      "index": 1,
+      "value": "H"
+    },
+    {
+      "side": "S",
+      "index": 2,
+      "value": "3"
+    },
+    {
+      "side": "S",
+      "index": 3,
+      "value": "4"
+    },
+    {
+      "side": "S",
+      "index": 4,
+      "value": "R"
+    },
+    {
+      "side": "S",
+      "index": 5,
+      "value": "H"
+    },
+    {
+      "side": "S",
+      "index": 6,
+      "value": "R"
+    },
+    {
+      "side": "S",
+      "index": 7,
+      "value": "5"
+    },
+    {
+      "side": "S",
+      "index": 8,
+      "value": "6"
+    },
+    {
+      "side": "S",
+      "index": 9,
+      "value": "7"
+    },
+    {
+      "side": "W",
+      "index": 0,
+      "value": "1"
+    },
+    {
+      "side": "W",
+      "index": 1,
+      "value": "R"
+    },
+    {
+      "side": "W",
+      "index": 2,
+      "value": "H"
+    },
+    {
+      "side": "W",
+      "index": 3,
+      "value": "R"
+    },
+    {
+      "side": "W",
+      "index": 4,
+      "value": "H"
+    },
+    {
+      "side": "W",
+      "index": 5,
+      "value": "R"
+    },
+    {
+      "side": "W",
+      "index": 6,
+      "value": "2"
+    },
+    {
+      "side": "W",
+      "index": 7,
+      "value": "R"
+    },
+    {
+      "side": "W",
+      "index": 8,
+      "value": "H"
+    },
+    {
+      "side": "W",
+      "index": 9,
+      "value": "R"
+    }
+  ]
+}
