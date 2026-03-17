@@ -1,0 +1,1 @@
+https://www.chiark.greenend.org.uk/~sgtatham/puzzles/js/unequal.html#7:0,0L,0,0,0,0,0,0,0,0,0,0U,0L,0,4,0,0R,0U,0D,0,0D,0,0,0L,0RL,0,0,0,2,7,1,0UD,4D,0,0,6,2,0,0,0R,0,0,0,6R,0,2,0U,0,0L,

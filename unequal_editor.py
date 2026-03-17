@@ -1,11 +1,15 @@
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field
+
+from z3 import Abs, And, Distinct, Int, Solver, sat
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QMouseEvent
 from PyQt6.QtWidgets import (
     QComboBox,
+    QFileDialog,
     QFrame,
     QGridLayout,
     QHBoxLayout,
@@ -84,6 +88,7 @@ class UnequalEditor(QWidget):
     def __init__(self) -> None:
         super().__init__()
         self.state = UnequalPuzzleState()
+        self.solution_values: dict[tuple[int, int], int] = {}
         self.given_inputs: dict[tuple[int, int], DigitCell] = {}
         self.horizontal_buttons: dict[tuple[int, int], RelationButton] = {}
         self.vertical_buttons: dict[tuple[int, int], RelationButton] = {}
@@ -99,6 +104,12 @@ class UnequalEditor(QWidget):
 
         self.clear_button = QPushButton("Clear grid")
         self.clear_button.clicked.connect(self.clear_puzzle)
+
+        self.save_button = QPushButton("Save puzzle")
+        self.save_button.clicked.connect(self.save_puzzle)
+
+        self.load_button = QPushButton("Load puzzle")
+        self.load_button.clicked.connect(self.load_puzzle)
 
         self.solve_button = QPushButton("Solve")
         self.solve_button.clicked.connect(self.solve)
@@ -118,6 +129,8 @@ class UnequalEditor(QWidget):
         controls.addWidget(self.make_labeled_field("Grid", self.grid_size_spin))
         controls.addWidget(self.make_labeled_field("Hint mode", self.variant_combo))
         controls.addStretch(1)
+        controls.addWidget(self.load_button)
+        controls.addWidget(self.save_button)
         controls.addWidget(self.clear_button)
         controls.addWidget(self.solve_button)
 
@@ -127,7 +140,7 @@ class UnequalEditor(QWidget):
         self.board_layout.setContentsMargins(22, 22, 22, 22)
 
         self.status_label = QLabel(
-            "Build an Unequal or Adjacent puzzle; solving is not wired up yet."
+            "Build an Unequal or Adjacent puzzle, then press Solve to fill the Latin square."
         )
         self.status_label.setObjectName("status")
         self.status_label.setWordWrap(True)
@@ -157,6 +170,7 @@ class UnequalEditor(QWidget):
 
     def on_grid_size_changed(self, grid_size: int) -> None:
         self.state = UnequalPuzzleState(grid_size=grid_size, variant=self.state.variant)
+        self.solution_values.clear()
         self.rebuild_board()
         self.update_summary()
         self.status_label.setText("Grid resized. Enter givens and relation hints.")
@@ -165,6 +179,8 @@ class UnequalEditor(QWidget):
         self.state.variant = variant
         self.state.horizontal_relations.clear()
         self.state.vertical_relations.clear()
+        self.solution_values.clear()
+        self.refresh_digit_inputs()
         self.refresh_relation_buttons()
         self.update_summary()
         self.status_label.setText(f"Hint mode switched to {variant}.")
@@ -174,10 +190,92 @@ class UnequalEditor(QWidget):
             grid_size=self.grid_size_spin.value(),
             variant=self.variant_combo.currentText(),
         )
+        self.solution_values.clear()
         self.refresh_digit_inputs()
         self.refresh_relation_buttons()
         self.update_summary()
         self.status_label.setText("Unequal grid cleared.")
+
+    def serialize_puzzle(self) -> dict[str, object]:
+        return {
+            "grid_size": self.state.grid_size,
+            "variant": self.state.variant,
+            "givens": [
+                {"row": row, "col": col, "value": value}
+                for (row, col), value in sorted(self.state.givens.items())
+            ],
+            "horizontal_relations": [
+                {"row": row, "col": col, "value": value}
+                for (row, col), value in sorted(self.state.horizontal_relations.items())
+            ],
+            "vertical_relations": [
+                {"row": row, "col": col, "value": value}
+                for (row, col), value in sorted(self.state.vertical_relations.items())
+            ],
+        }
+
+    def save_puzzle(self) -> None:
+        file_path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Save puzzle",
+            "unequal-puzzle.json",
+            "JSON files (*.json)",
+        )
+        if not file_path:
+            return
+        try:
+            with open(file_path, "w", encoding="utf-8") as handle:
+                json.dump(self.serialize_puzzle(), handle, indent=2)
+        except OSError as exc:
+            self.status_label.setText(f"Could not save puzzle: {exc}")
+            return
+        self.status_label.setText(f"Saved puzzle to {file_path}.")
+
+    def load_puzzle(self) -> None:
+        file_path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Load puzzle",
+            "",
+            "JSON files (*.json)",
+        )
+        if not file_path:
+            return
+        try:
+            with open(file_path, "r", encoding="utf-8") as handle:
+                payload = json.load(handle)
+            grid_size = int(payload["grid_size"])
+            variant = str(payload["variant"])
+            if variant not in {"Unequal", "Adjacent"}:
+                raise ValueError(f"Unsupported variant: {variant}")
+            givens = {
+                (int(item["row"]), int(item["col"])): int(item["value"])
+                for item in payload.get("givens", [])
+            }
+            horizontal_relations = {
+                (int(item["row"]), int(item["col"])): str(item["value"])
+                for item in payload.get("horizontal_relations", [])
+            }
+            vertical_relations = {
+                (int(item["row"]), int(item["col"])): str(item["value"])
+                for item in payload.get("vertical_relations", [])
+            }
+        except (KeyError, TypeError, ValueError, json.JSONDecodeError, OSError) as exc:
+            self.status_label.setText(f"Could not load puzzle: {exc}")
+            return
+
+        self.solution_values.clear()
+        self.grid_size_spin.setValue(grid_size)
+        self.variant_combo.setCurrentText(variant)
+        self.state = UnequalPuzzleState(
+            grid_size=grid_size,
+            variant=variant,
+            givens=givens,
+            horizontal_relations=horizontal_relations,
+            vertical_relations=vertical_relations,
+        )
+        self.rebuild_board()
+        self.update_summary()
+        self.status_label.setText(f"Loaded puzzle from {file_path}.")
 
     def rebuild_board(self) -> None:
         while self.board_layout.count():
@@ -237,6 +335,7 @@ class UnequalEditor(QWidget):
         return ["", "^", "v"]
 
     def cycle_relation(self, axis: str, position: tuple[int, int], step: int) -> None:
+        self.solution_values.clear()
         mapping = (
             self.state.horizontal_relations
             if axis == "horizontal"
@@ -254,8 +353,10 @@ class UnequalEditor(QWidget):
         self.update_summary()
 
     def update_given(self, position: tuple[int, int], text: str) -> None:
+        self.solution_values.clear()
         if not text:
             self.state.givens.pop(position, None)
+            self.refresh_digit_inputs()
             self.update_summary()
             return
         value = int(text)
@@ -271,17 +372,29 @@ class UnequalEditor(QWidget):
                 self.state.givens.pop(position, None)
         else:
             self.state.givens[position] = value
+        self.refresh_digit_inputs()
         self.update_summary()
 
     def refresh_digit_inputs(self) -> None:
         max_len = len(str(self.state.grid_size))
         for position, widget in self.given_inputs.items():
             widget.setMaxLength(max_len)
-            widget.setText(
-                str(self.state.givens[position])
-                if position in self.state.givens
-                else ""
+            display_value = self.state.givens.get(position)
+            if display_value is None and position in self.solution_values:
+                display_value = self.solution_values[position]
+            text = str(display_value) if display_value is not None else ""
+            if widget.text() != text:
+                widget.blockSignals(True)
+                widget.setText(text)
+                widget.blockSignals(False)
+            widget.setProperty(
+                "solved",
+                position in self.solution_values and position not in self.state.givens,
             )
+            style = widget.style()
+            if style is not None:
+                style.unpolish(widget)
+                style.polish(widget)
 
     def refresh_relation_buttons(self) -> None:
         for position, button in self.horizontal_buttons.items():
@@ -311,6 +424,55 @@ class UnequalEditor(QWidget):
         )
 
     def solve(self) -> None:
+        s = Solver()
+        cells = [
+            [Int(f"cell_{r}_{c}") for c in range(self.state.grid_size)]
+            for r in range(self.state.grid_size)
+        ]
+
+        for r in range(self.state.grid_size):
+            for c in range(self.state.grid_size):
+                s.add(And(cells[r][c] > 0, cells[r][c] <= self.state.grid_size))
+
+            s.add(Distinct(cells[r]))
+
+        for c in range(self.state.grid_size):
+            s.add(Distinct([cells[r][c] for r in range(self.state.grid_size)]))
+
+        for (row, col), given in self.state.givens.items():
+            s.add(cells[row][col] == given)
+
+        for (row, col), relation in self.state.horizontal_relations.items():
+            if relation == "<":
+                s.add(cells[row][col] < cells[row][col + 1])
+            elif relation == ">":
+                s.add(cells[row][col] > cells[row][col + 1])
+            elif relation in {"|", "-"}:
+                s.add(Abs(cells[row][col] - cells[row][col + 1]) == 1)
+
+        for (row, col), relation in self.state.vertical_relations.items():
+            if relation == "^":
+                s.add(cells[row][col] < cells[row + 1][col])
+            elif relation == "v":
+                s.add(cells[row][col] > cells[row + 1][col])
+            elif relation in {"|", "-"}:
+                s.add(Abs(cells[row][col] - cells[row + 1][col]) == 1)
+
+        if s.check() != sat:
+            self.solution_values.clear()
+            self.refresh_digit_inputs()
+            self.status_label.setText(
+                "No solution fits the current givens and relations."
+            )
+            return
+
+        model = s.model()
+        self.solution_values = {
+            (row, col): int(str(model.eval(cells[row][col])))
+            for row in range(self.state.grid_size)
+            for col in range(self.state.grid_size)
+        }
+        self.refresh_digit_inputs()
         self.status_label.setText(
-            f"{self.state.variant} solver is not implemented yet, but the puzzle state is ready."
+            f"Solved {self.state.variant.lower()} puzzle with a {self.state.grid_size}x{self.state.grid_size} Latin square."
         )

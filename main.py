@@ -153,6 +153,10 @@ class PuzzleWindow(QWidget):
             font-weight: 600;
             padding: 0;
         }
+        QLineEdit#digitCell[solved="true"] {
+            background: #efe5d6;
+            color: #59452f;
+        }
         QPushButton#relationButton {
             min-width: 30px;
             min-height: 30px;
